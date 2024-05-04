@@ -15,10 +15,13 @@
  */
 package com.example.cupcake.model
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
+import androidx.compose.runtime.Stable
 import androidx.lifecycle.ViewModel
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -34,30 +37,26 @@ private const val PRICE_FOR_SAME_DAY_PICKUP = 3.00
  * [OrderViewModel] holds information about a cupcake order in terms of quantity, flavor, and
  * pickup date. It also knows how to calculate the total price based on these order details.
  */
+@Stable
 class OrderViewModel : ViewModel() {
 
     // Quantity of cupcakes in this order
-    private val _quantity = MutableLiveData<Int>()
-    val quantity: LiveData<Int> = _quantity
+    private val _quantity = MutableStateFlow(0)
+    val quantity: StateFlow<Int> = _quantity
 
     // Cupcake flavor for this order
-    private val _flavor = MutableLiveData<String>()
-    val flavor: LiveData<String> = _flavor
+    private val _flavor = MutableStateFlow("")
+    val flavor: StateFlow<String> = _flavor
 
     // Possible date options
-    val dateOptions: List<String> = getPickupOptions()
+    val dateOptions= MutableStateFlow(getPickupOptions())
 
     // Pickup date
-    private val _date = MutableLiveData<String>()
-    val date: LiveData<String> = _date
+    private val _date = MutableStateFlow<String?>(null)
+    val date: StateFlow<String?> = _date
 
-    // Price of the order so far
-    private val _price = MutableLiveData<Double>()
-    val price: LiveData<String> = Transformations.map(_price) {
-        // Format the price into the local currency and return this as LiveData<String>
-        NumberFormat.getCurrencyInstance().format(it)
-    }
-
+    private val _priceState = MutableStateFlow<Double?>(null)
+    val priceFlow: StateFlow<Double?> = _priceState.asStateFlow()
     init {
         // Set initial values for the order
         resetOrder()
@@ -71,6 +70,10 @@ class OrderViewModel : ViewModel() {
     fun setQuantity(numberCupcakes: Int) {
         _quantity.value = numberCupcakes
         updatePrice()
+    }
+
+    fun getStringPrice(price: Double?): String {
+        return NumberFormat.getCurrencyInstance().format(price)
     }
 
     /**
@@ -105,8 +108,8 @@ class OrderViewModel : ViewModel() {
     fun resetOrder() {
         _quantity.value = 0
         _flavor.value = ""
-        _date.value = dateOptions[0]
-        _price.value = 0.0
+        _date.value = dateOptions.value[0]
+        _priceState.tryEmit(0.0)
     }
 
     /**
@@ -115,16 +118,17 @@ class OrderViewModel : ViewModel() {
     private fun updatePrice() {
         var calculatedPrice = (quantity.value ?: 0) * PRICE_PER_CUPCAKE
         // If the user selected the first option (today) for pickup, add the surcharge
-        if (dateOptions[0] == _date.value) {
+        if (dateOptions.value[0] == _date.value) {
             calculatedPrice += PRICE_FOR_SAME_DAY_PICKUP
         }
-        _price.value = calculatedPrice
+
+        _priceState.tryEmit(calculatedPrice)
     }
 
     /**
      * Returns a list of date options starting with the current date and the following 3 dates.
      */
-    private fun getPickupOptions(): List<String> {
+    private fun getPickupOptions(): ImmutableList<String> {
         val options = mutableListOf<String>()
         val formatter = SimpleDateFormat("E MMM d", Locale.getDefault())
         val calendar = Calendar.getInstance()
@@ -132,6 +136,6 @@ class OrderViewModel : ViewModel() {
             options.add(formatter.format(calendar.time))
             calendar.add(Calendar.DATE, 1)
         }
-        return options
+        return options.toImmutableList()
     }
 }

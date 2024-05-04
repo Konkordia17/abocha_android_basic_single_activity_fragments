@@ -1,0 +1,102 @@
+{
+ "skippableComposables": 28,
+ "restartableComposables": 46,
+ "readonlyComposables": 0,
+ "totalComposables": 46,
+ "restartGroups": 46,
+ "totalGroups": 46,
+ "staticArguments": 75,
+ "certainArguments": 22,
+ "knownStableArguments": 591,
+ "knownUnstableArguments": 12,
+ "unknownStableArguments": 0,
+ "totalArguments": 603,
+ "markedStableClasses": 1,
+ "inferredStableClasses": 5,
+ "inferredUnstableClasses": 1,
+ "inferredUncertainClasses": 0,
+ "effectivelyStableClasses": 6,
+ "totalClasses": 7,
+ "memoizedLambdas": 33,
+ "singletonLambdas": 2,
+ "singletonComposableLambdas": 12,
+ "composableLambdas": 28,
+ "totalLambdas": 43
+}
+
+
+unstable class MainActivity {
+  unstable val viewModel$delegate: Lazy<OrderViewModel>
+  <runtime stability> = Unstable
+}
+stable class Start {
+  <runtime stability> = Stable
+}
+stable class Flavor {
+  <runtime stability> = Stable
+}
+stable class PickUp {
+  <runtime stability> = Stable
+}
+stable class Summary {
+  <runtime stability> = Stable
+}
+stable class NavigationItem {
+  stable val route: String
+  <runtime stability> = Stable
+}
+stable class OrderViewModel {
+  unstable val _quantity: MutableStateFlow<Int>
+  unstable val quantity: StateFlow<Int>
+  unstable val _flavor: MutableStateFlow<String>
+  unstable val flavor: StateFlow<String>
+  unstable val dateOptions: MutableStateFlow<ImmutableList<String>>
+  unstable val _date: MutableStateFlow<String?>
+  unstable val date: StateFlow<String?>
+  unstable val _priceState: MutableStateFlow<Double?>
+  unstable val priceFlow: StateFlow<Double?>
+}
+
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun AppNavHost(
+  stable viewModel: OrderViewModel
+  stable doOnSend: Function0<Unit>
+)
+restartable scheme("[androidx.compose.ui.UiComposable]") fun FlavorScreen(
+  stable viewModel: OrderViewModel
+  unstable navController: NavController
+)
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun SubtotalPrice(
+  stable viewModel: OrderViewModel
+)
+restartable scheme("[androidx.compose.ui.UiComposable]") fun RadioButtonGroup(
+  unstable radioOptions: List<String>
+  stable doOnClick: Function1<String, Unit>
+  stable selectedItem: String?
+)
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun Buttons(
+  stable doOnCancel: Function0<Unit>
+  stable doOnNext: Function0<Unit>
+)
+restartable scheme("[androidx.compose.ui.UiComposable]") fun PickUpScreen(
+  stable viewModel: OrderViewModel
+  unstable navController: NavController
+)
+restartable scheme("[androidx.compose.ui.UiComposable]") fun StartScreen(
+  unstable navController: NavController
+  stable viewModel: OrderViewModel
+)
+restartable scheme("[androidx.compose.ui.UiComposable]") fun CupcakeButton(
+  stable textId: Int
+  stable quantity: Int
+  stable viewModel: OrderViewModel
+  unstable navController: NavController
+)
+restartable scheme("[androidx.compose.ui.UiComposable]") fun SummaryScreen(
+  stable viewModel: OrderViewModel
+  stable doOnSend: Function0<Unit>
+  unstable navController: NavController
+)
+restartable skippable scheme("[androidx.compose.ui.UiComposable]") fun CategoryItem(
+  stable titleId: Int
+  stable description: String
+)
